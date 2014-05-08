@@ -16,35 +16,36 @@
 import wx
 import re
 
+
 class MacroEditor(wx.Dialog):
     """Really simple editor to edit macro definitions"""
 
-    def __init__(self, macro_name, definition, callback, gcode = False):
+    def __init__(self, macro_name, definition, callback, gcode=False):
         self.indent_chars = "  "
         title = "  macro %s"
         if gcode:
             title = "  %s"
         self.gcode = gcode
-        wx.Dialog.__init__(self, None, title = title % macro_name,
-                           style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        wx.Dialog.__init__(self, None, title=title % macro_name,
+                           style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         self.callback = callback
         self.panel = wx.Panel(self, -1)
         titlesizer = wx.BoxSizer(wx.HORIZONTAL)
         self.titletext = wx.StaticText(self.panel, -1, "              _")  # title%macro_name)
         titlesizer.Add(self.titletext, 1)
-        self.findb = wx.Button(self.panel, -1, _("Find"), style = wx.BU_EXACTFIT)  # New button for "Find" (Jezmy)
+        self.findb = wx.Button(self.panel, -1, _("Find"), style=wx.BU_EXACTFIT)  # New button for "Find" (Jezmy)
         self.findb.Bind(wx.EVT_BUTTON, self.find)
-        self.okb = wx.Button(self.panel, -1, _("Save"), style = wx.BU_EXACTFIT)
+        self.okb = wx.Button(self.panel, -1, _("Save"), style=wx.BU_EXACTFIT)
         self.okb.Bind(wx.EVT_BUTTON, self.save)
         self.Bind(wx.EVT_CLOSE, self.close)
         titlesizer.Add(self.findb)
         titlesizer.Add(self.okb)
-        self.cancelb = wx.Button(self.panel, -1, _("Cancel"), style = wx.BU_EXACTFIT)
+        self.cancelb = wx.Button(self.panel, -1, _("Cancel"), style=wx.BU_EXACTFIT)
         self.cancelb.Bind(wx.EVT_BUTTON, self.close)
         titlesizer.Add(self.cancelb)
         topsizer = wx.BoxSizer(wx.VERTICAL)
         topsizer.Add(titlesizer, 0, wx.EXPAND)
-        self.e = wx.TextCtrl(self.panel, style = wx.HSCROLL | wx.TE_MULTILINE | wx.TE_RICH2, size = (400, 400))
+        self.e = wx.TextCtrl(self.panel, style=wx.HSCROLL | wx.TE_MULTILINE | wx.TE_RICH2, size=(400, 400))
         if not self.gcode:
             self.e.SetValue(self.unindent(definition))
         else:
@@ -61,7 +62,7 @@ class MacroEditor(wx.Dialog):
         S = self.e.GetStringSelection()
         if not S:
             S = "Z"
-        FindValue = wx.GetTextFromUser('Please enter a search string:', caption = "Search", default_value = S, parent = None)
+        FindValue = wx.GetTextFromUser('Please enter a search string:', caption="Search", default_value=S, parent=None)
         somecode = self.e.GetValue()
         position = somecode.find(FindValue, self.e.GetInsertionPoint())
         if position == -1:
@@ -116,19 +117,23 @@ class MacroEditor(wx.Dialog):
                 reindented += self.indent_chars + line + "\n"
         return reindented
 
+
 SETTINGS_GROUPS = {"Printer": _("Printer settings"),
                    "UI": _("User interface"),
                    "Viewer": _("Viewer"),
                    "Colors": _("Colors"),
-                   "External": _("External commands")}
+                   "External": _("External commands"),
+                   "Logging": _("Logging settings")}
+
 
 class PronterOptionsDialog(wx.Dialog):
     """Options editor"""
+
     def __init__(self, pronterface):
-        wx.Dialog.__init__(self, parent = None, title = _("Edit settings"),
-                           size = (400, 500), style = wx.DEFAULT_DIALOG_STYLE)
+        wx.Dialog.__init__(self, parent=None, title=_("Edit settings"),
+                           size=(400, 500), style=wx.DEFAULT_DIALOG_STYLE)
         panel = wx.Panel(self)
-        header = wx.StaticBox(panel, label = _("Settings"))
+        header = wx.StaticBox(panel, label=_("Settings"))
         sbox = wx.StaticBoxSizer(header, wx.VERTICAL)
         notebook = wx.Notebook(panel)
         all_settings = pronterface.settings._all_settings()
@@ -146,23 +151,23 @@ class PronterOptionsDialog(wx.Dialog):
             grouppanel = wx.Panel(notebook, -1)
             notebook.AddPage(grouppanel, SETTINGS_GROUPS[group])
             settings = groups[group]
-            grid = wx.GridBagSizer(hgap = 8, vgap = 2)
+            grid = wx.GridBagSizer(hgap=8, vgap=2)
             current_row = 0
             for setting in settings:
                 if setting.name.startswith("separator_"):
-                    sep = wx.StaticLine(grouppanel, size = (-1, 5), style = wx.LI_HORIZONTAL)
-                    grid.Add(sep, pos = (current_row, 0), span = (1, 2),
-                             border = 3, flag = wx.ALIGN_CENTER | wx.ALL | wx.EXPAND)
+                    sep = wx.StaticLine(grouppanel, size=(-1, 5), style=wx.LI_HORIZONTAL)
+                    grid.Add(sep, pos=(current_row, 0), span=(1, 2),
+                             border=3, flag=wx.ALIGN_CENTER | wx.ALL | wx.EXPAND)
                     current_row += 1
                 label, widget = setting.get_label(grouppanel), setting.get_widget(grouppanel)
                 if setting.name.startswith("separator_"):
                     font = label.GetFont()
                     font.SetWeight(wx.BOLD)
                     label.SetFont(font)
-                grid.Add(label, pos = (current_row, 0),
-                         flag = wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT)
-                grid.Add(widget, pos = (current_row, 1),
-                         flag = wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
+                grid.Add(label, pos=(current_row, 0),
+                         flag=wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_RIGHT)
+                grid.Add(widget, pos=(current_row, 1),
+                         flag=wx.ALIGN_CENTER_VERTICAL | wx.EXPAND)
                 if hasattr(label, "set_default"):
                     label.Bind(wx.EVT_MOUSE_EVENTS, label.set_default)
                     if hasattr(widget, "Bind"):
@@ -178,6 +183,7 @@ class PronterOptionsDialog(wx.Dialog):
         self.SetSizerAndFit(topsizer)
         self.SetMinSize(self.GetSize())
 
+
 def PronterOptions(pronterface):
     dialog = PronterOptionsDialog(pronterface)
     if dialog.ShowModal() == wx.ID_OK:
@@ -188,14 +194,16 @@ def PronterOptions(pronterface):
                 pronterface.set(setting.name, setting.value)
     dialog.Destroy()
 
+
 class ButtonEdit(wx.Dialog):
     """Custom button edit dialog"""
+
     def __init__(self, pronterface):
-        wx.Dialog.__init__(self, None, title = _("Custom button"),
-                           style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
+        wx.Dialog.__init__(self, None, title=_("Custom button"),
+                           style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
         self.pronterface = pronterface
         topsizer = wx.BoxSizer(wx.VERTICAL)
-        grid = wx.FlexGridSizer(rows = 0, cols = 2, hgap = 4, vgap = 2)
+        grid = wx.FlexGridSizer(rows=0, cols=2, hgap=4, vgap=2)
         grid.AddGrowableCol(1, 1)
         grid.Add(wx.StaticText(self, -1, _("Button title")), 0, wx.BOTTOM | wx.RIGHT)
         self.name = wx.TextCtrl(self, -1, "")
@@ -205,7 +213,7 @@ class ButtonEdit(wx.Dialog):
         xbox = wx.BoxSizer(wx.HORIZONTAL)
         xbox.Add(self.command, 1, wx.EXPAND)
         self.command.Bind(wx.EVT_TEXT, self.macrob_enabler)
-        self.macrob = wx.Button(self, -1, "..", style = wx.BU_EXACTFIT)
+        self.macrob = wx.Button(self, -1, "..", style=wx.BU_EXACTFIT)
         self.macrob.Bind(wx.EVT_BUTTON, self.macrob_handler)
         xbox.Add(self.macrob, 0)
         grid.Add(xbox, 1, wx.EXPAND)
@@ -249,11 +257,11 @@ class ButtonEdit(wx.Dialog):
         if self.name.GetValue() == "":
             self.name.SetValue(macro)
 
-class TempGauge(wx.Panel):
 
-    def __init__(self, parent, size = (200, 22), title = "",
-                 maxval = 240, gaugeColour = None, bgcolor = "#FFFFFF"):
-        wx.Panel.__init__(self, parent, -1, size = size)
+class TempGauge(wx.Panel):
+    def __init__(self, parent, size=(200, 22), title="",
+                 maxval=240, gaugeColour=None, bgcolor="#FFFFFF"):
+        wx.Panel.__init__(self, parent, -1, size=size)
         self.Bind(wx.EVT_PAINT, self.paint)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.bgcolor = wx.Colour()
@@ -287,7 +295,8 @@ class TempGauge(wx.Panel):
         else:
             lo, hi, val, valhi = cmid, cmax, val - vmid, vmax - vmid
         vv = float(val) / valhi
-        rgb = lo.Red() + (hi.Red() - lo.Red()) * vv, lo.Green() + (hi.Green() - lo.Green()) * vv, lo.Blue() + (hi.Blue() - lo.Blue()) * vv
+        rgb = lo.Red() + (hi.Red() - lo.Red()) * vv, lo.Green() + (hi.Green() - lo.Green()) * vv, lo.Blue() + (
+            hi.Blue() - lo.Blue()) * vv
         rgb = map(lambda x: x * 0.8, rgb)
         return wx.Colour(*map(int, rgb))
 
@@ -328,7 +337,8 @@ class TempGauge(wx.Panel):
         value = x0 + max(10, min(self.width + 1 - 2, int(self.value * self.scale)))
         # gc.SetBrush(gc.CreateLinearGradientBrush(x0, y0 + 3, x0, y0 + 15, gauge1, gauge2))
         # gc.SetBrush(gc.CreateLinearGradientBrush(0, 3, 0, 15, wx.Colour(255, 255, 255), wx.Colour(255, 90, 32)))
-        gc.SetBrush(gc.CreateLinearGradientBrush(x0, y0 + 3, x0, y0 + 15, gauge1, self.interpolatedColour(value, x0, x1, xE, cold, medium, hot)))
+        gc.SetBrush(gc.CreateLinearGradientBrush(x0, y0 + 3, x0, y0 + 15, gauge1,
+                                                 self.interpolatedColour(value, x0, x1, xE, cold, medium, hot)))
         val_path = gc.CreatePath()
         val_path.MoveToPoint(x0, w1)
         val_path.AddLineToPoint(value, w1)
@@ -360,16 +370,16 @@ class TempGauge(wx.Panel):
         gc.DrawText(self.title, x0 + 18, y0 + 3)
         gc.DrawText(text, x0 + 118, y0 + 3)
 
-class SpecialButton(object):
 
+class SpecialButton(object):
     label = None
     command = None
     background = None
     tooltip = None
     custom = None
 
-    def __init__(self, label, command, background = None,
-                 tooltip = None, custom = False):
+    def __init__(self, label, command, background=None,
+                 tooltip=None, custom=False):
         self.label = label
         self.command = command
         self.background = background

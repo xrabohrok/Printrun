@@ -312,6 +312,9 @@ class Settings(object):
         self._add(StringSetting("sliceoptscommand", "python skeinforge/skeinforge_application/skeinforge.py", _("Slicer options command"), _("Slice settings command"), "External"))
         self._add(StringSetting("final_command", "", _("Final command"), _("Executable to run when the print is finished"), "External"))
         self._add(StringSetting("error_command", "", _("Error command"), _("Executable to run when an error occurs"), "External"))
+        self._add(BooleanSetting("Log_Settings", False, _("Log setting each print"), _("Take the general settings of a print job and put them in a csv file"),"Logging"))
+        self._add(StringSetting("Log_Destination",_(".\Logs\Pronterface_jobs.csv"),_("Log File Location"),_("Place where the log csv will be saved"),"Logging"))
+        self._add(BooleanSetting("Log_Job_Filename",True,_("Log File Location"),_("Place where the log csv will be saved"),"Logging"))
 
         self._add(HiddenSetting("project_offset_x", 0.0))
         self._add(HiddenSetting("project_offset_y", 0.0))
