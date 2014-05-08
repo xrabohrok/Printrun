@@ -1517,6 +1517,7 @@ Printrun. If not, see <http://www.gnu.org/licenses/>."""
             pronsole.pronsole.process_host_command(self, command)
 
     def startcb(self, resuming = False):
+        #TODO: Trigger here, important - WKB
         """Callback on print start"""
         pronsole.pronsole.startcb(self, resuming)
         if self.settings.lockbox and self.settings.lockonstart:
