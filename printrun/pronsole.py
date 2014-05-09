@@ -915,6 +915,12 @@ class pronsole(cmd.Cmd):
             # make sure the filename is initialized
             self.rc_filename = os.path.abspath(os.path.join(os.path.expanduser("~"), rc_filename))
 
+        if(self.settings.Log_Settings):
+            try:
+                self.logFile = open(self.settings.Log_Destination,'a')
+            except:
+                self.log("Error opening log File")
+
     def save_in_rc(self, key, definition):
         """
         Saves or updates macro or other definitions in .pronsolerc
@@ -1413,7 +1419,13 @@ class pronsole(cmd.Cmd):
     #  --------------------------------------------------------------
 
     def startcb(self, resuming = False):
+        #TODO:start log here
         self.starttime = time.time()
+
+        if(self.settings.Log_Settings):
+            if (hasattr(self, "logFile")):
+                    self.logFile.write("Something")
+
         if resuming:
             print _("Print resumed at: %s") % format_time(self.starttime)
         else:
@@ -1429,6 +1441,7 @@ class pronsole(cmd.Cmd):
             traceback.print_exc(file = sys.stdout)
 
     def endcb(self):
+        #TODO: end log here
         try:
             powerset_print_stop()
         except:
