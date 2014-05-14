@@ -28,6 +28,7 @@ import locale
 import logging
 import traceback
 import re
+import errno
 
 from serial import SerialException
 
@@ -35,6 +36,7 @@ from . import printcore
 from .utils import install_locale, run_command, get_command_output, \
     format_time, format_duration, RemainingTimeEstimator, \
     get_home_pos, parse_build_dimensions, parse_temperature_report
+import string
 install_locale('pronterface')
 from printrun.power import powerset_print_start, powerset_print_stop
 from printrun import gcoder
@@ -314,7 +316,7 @@ class Settings(object):
         self._add(StringSetting("error_command", "", _("Error command"), _("Executable to run when an error occurs"), "External"))
         self._add(BooleanSetting("Log_Settings", False, _("Log setting each print"), _("Take the general settings of a print job and put them in a csv file"),"Logging"))
         self._add(StringSetting("Log_Destination",_(".\Logs\Pronterface_jobs.csv"),_("Log File Location"),_("Place where the log csv will be saved"),"Logging"))
-        self._add(BooleanSetting("Log_Job_Filename",True,_("Log File Location"),_("Place where the log csv will be saved"),"Logging"))
+        self._add(BooleanSetting("Log_Job_Filename",True,_("Log Job Filename"),_("Log name of file printed"),"Logging"))
 
         self._add(HiddenSetting("project_offset_x", 0.0))
         self._add(HiddenSetting("project_offset_y", 0.0))
@@ -917,9 +919,19 @@ class pronsole(cmd.Cmd):
 
         if(self.settings.Log_Settings):
             try:
-                self.logFile = open(self.settings.Log_Destination,'a')
-            except:
-                self.log("Error opening log File")
+                arguments = str(self.settings.Log_Destination).split('\\')[:-1]
+                pathOnly = string.join(arguments, '\\')
+
+                try:
+                    os.makedirs(pathOnly)
+                except OSError as exception:
+                    if exception.errno != errno.EEXIST:
+                        raise
+
+                self.logFile = open(self.settings.Log_Destination,'w')
+
+            except Exception as e:
+                self.log("Error opening log File{}".format(e))
 
     def save_in_rc(self, key, definition):
         """
