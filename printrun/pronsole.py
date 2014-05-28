@@ -29,6 +29,7 @@ import logging
 import traceback
 import re
 import errno
+import logdata
 
 from serial import SerialException
 
@@ -496,6 +497,7 @@ class pronsole(cmd.Cmd):
                            "fallback": "%(bold)sPC>%(normal)s ",
                            "macro": "%(bold)s..>%(normal)s ",
                            "online": "%(bold)sT:%(extruder_temp_fancy)s%(progress_fancy)s>%(normal)s "}
+        self.settingsLogger = logdata()
 
     #  --------------------------------------------------------------
     #  General console handling
@@ -1169,6 +1171,8 @@ class pronsole(cmd.Cmd):
                             layer_callback = layer_callback)
         self.fgcode.estimate_duration()
         self.filename = filename
+        self.settingsLogger.logFileName(filename)
+        self.settingsLogger.logStopTimeTime(time.clock())
 
     def complete_load(self, text, line, begidx, endidx):
         s = line.split()

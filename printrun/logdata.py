@@ -18,3 +18,6 @@ class logData:
 
         def logPrintTime(self, printTime):
             self.records[-1]["PrintTime"] = str(printTime)
+
+        def logStopTimeTime(self, printTime):
+            self.records[-1]["StopTime"] = str(printTime)
